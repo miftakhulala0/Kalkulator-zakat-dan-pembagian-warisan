@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Waris (Faraid)</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+    body{background:#07152b;color:white;min-height:100vh;padding:30px;}
+    .container{max-width:1200px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+    .left-panel, .right-panel{display:flex;flex-direction:column;gap:20px;}
+    .card{background:#13233d;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,0.25);}
+    .title{font-size:22px;font-weight:bold;margin-bottom:6px;}
+    .subtitle{font-size:14px;color:#a9b3c7;margin-bottom:20px;}
+    .selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
+    .selector-item { background: #0f1d34; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px 10px; cursor: pointer; transition: 0.2s; text-align: center; }
+    .selector-item:hover { border-color: #1dd75b; }
+    .selector-item.active { border: 1px solid #1dd75b; background: #132d23; }
+    .selector-title { font-size: 15px; font-weight: bold; }
+    .section-title { color: #1dd75b; font-size: 15px; font-weight: bold; margin: 16px 0 8px 0; display: block; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; }
+    .ahli-waris-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+    .ahli-waris-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .item-left { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; }
+    .item-left input[type="checkbox"] { width: 20px; height: 20px; accent-color: #1dd75b; cursor: pointer; }
+    .name-container { display: flex; flex-direction: column; }
+    .name-id { font-size: 15px; font-weight: 500; color: #e2e8f0; }
+    .name-ar { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .counter-container { display: none; align-items: center; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; overflow: hidden; background: #0f1d34; }
+    .counter-btn { width: 32px; height: 32px; background: #1e293b; border: none; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #e2e8f0; user-select: none; border-radius: 0; }
+    .counter-btn:active { background-color: #334155; }
+    .counter-value { width: 36px; text-align: center; font-size: 15px; border: none; border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1); font-weight: bold; outline: none; background: transparent; color: white; }
+    .form-group{margin-bottom:20px;}
+    .form-label{display:block;margin-bottom:12px;font-size:14px;font-weight:bold;color:#cbd5e1;}
+    .input-wrapper{position:relative;}
+    .currency{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#98a4bb;font-size:16px;}
+    .form-input{width:100%;height:54px;background:#0f1d34;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:0 18px 0 58px;color:white;font-size:16px;outline:none;transition:0.2s; font-weight: bold;}
+    .form-input:focus{border-color:#1dd75b;}
+    .divider { border-top: 1px dashed rgba(255,255,255,0.1); margin: 20px 0; }
+    .info-box{background:#4a4038;border-radius:14px;padding:16px;color:#ffc247;font-size:14px;line-height:1.6;margin-top:15px;}
+    .button-group{display:flex;gap:14px;margin-top:15px;}
+    button{border:none;border-radius:14px;cursor:pointer;transition:0.2s;}
+    .btn-primary{flex:1;height:56px;background:#0a7b33;color:white;font-size:16px;font-weight:bold;}
+    .btn-primary:hover{background:#119642;}
+    .btn-secondary{width:110px;height:56px;background:#39475d;color:white;font-size:16px;font-weight:bold;}
+    .btn-secondary:hover{background:#4a5b75;}
+    .table-title { font-size: 18px; font-weight: bold; margin: 24px 0 12px 0; border-left: 4px solid #1dd75b; padding-left: 10px; color: #fff; }
+    .summary-cards { display: flex; gap: 10px; margin-bottom: 16px; }
+    .summary-card { flex: 1; background: #0f1d34; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px; text-align: center; }
+    .card-title-sm { font-size: 11px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+    .card-value { font-size: 16px; font-weight: bold; color: #1dd75b; }
+    .result-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; background: #0f1d34; border-radius: 12px; overflow: hidden; }
+    .result-table th, .result-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .result-table th { background-color: #1e293b; color: #cbd5e1; font-weight: 600; }
+    .result-table td .ar-sub { font-size: 12px; color: #64748b; display: block; margin-top: 3px; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; }
+    .badge-sisa { background-color: #132d23; color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
+    .badge-mahjub { background-color: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2); }
+    @media(max-width:950px){ .container{grid-template-columns:1fr;} }
+    @media(max-width:500px){ body{padding:15px;} .summary-cards { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <div class="card">
+        <div class="title">Data Pewaris (Mayit)</div>
+        <div class="subtitle">Tentukan jenis kelamin orang yang meninggal dunia.</div>
+        <div class="selector-grid">
+          <div class="selector-item active" data-gender="Laki-laki" onclick="setGender('Laki-laki')">
+            <div class="selector-title">👨 Laki-laki</div>
+          </div>
+          <div class="selector-item" data-gender="Perempuan" onclick="setGender('Perempuan')">
+            <div class="selector-title">🧕 Perempuan</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="title">Daftar Ahli Waris</div>
+        <div class="subtitle">Centang ahli waris yang masih hidup dan atur jumlahnya.</div>
+        <div id="listAhliWarisContainer">
+          </div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="card">
+        <div class="title">Harta Peninggalan</div>
+        <div class="subtitle">Masukkan rincian aset dan tanggungan mayit.</div>
+        <div class="form-group">
+          <label class="form-label">Total Harta Keseluruhan</label>
+          <div class="input-wrapper">
+            <span class="currency">Rp</span>
+            <input type="text" class="form-input num-bind" id="hartaTotal" placeholder="0" oninput="calcWaris()" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hutang, Tajhiz & Wasiat (Kewajiban)</label>
+          <div class="input-wrapper">
+            <span class="currency">Rp</span>
+            <input type="text" class="form-input num-bind" id="tanggungan" placeholder="0" oninput="calcWaris()" />
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="form-group">
+          <label style="font-weight: bold; color: #94a3b8;">Harta Bersih (Tirkah) Siap Bagi</label>
+          <div id="sisaHartaDisplay" style="font-size: 28px; font-weight: bold; color: #1dd75b; margin-top: 6px;">Rp 0</div>
+        </div>
+        <div class="button-group">
+          <button class="btn-primary" onclick="calcWaris()">Hitung Warisan</button>
+          <button class="btn-secondary" onclick="resetApp()">Reset</button>
+        </div>
+      </div>
+      <div class="card" id="resultCard">
+        <div class="title">Tabel Pembagian</div>
+        <div class="subtitle">Detail pembagian porsi sesuai syariat (Faraid).</div>
+        <div class="summary-cards">
+          <div class="summary-card"><div class="card-title-sm">Asal Masalah Awal</div><div class="card-value" id="valAmAwal">1</div></div>
+          <div class="summary-card"><div class="card-title-sm">Status Radd/Aul</div><div class="card-value" style="color:#e2e8f0;">Tidak Ada</div></div>
+          <div class="summary-card"><div class="card-title-sm">Asal Masalah Akhir</div><div class="card-value" id="valAmAkhir">1</div></div>
+        </div>
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Ahli Waris</th>
+              <th>Furudh</th>
+              <th>Siham</th>
+              <th>Total Nominal</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr><td colspan="4" style="text-align:center;color:#64748b;">Silakan pilih ahli waris terlebih dahulu.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<script>
+const dataWaris = [
+    { id: "istri", for: "Laki-laki", gender: "P", name: "Istri / Janda", ar: "الزوجة", max: 4, blockers: [] },
+    { id: "suami", for: "Perempuan", gender: "L", name: "Suami / Duda", ar: "الزوج", max: 1, blockers: [] },
+    { id: "ayah", for: "All", gender: "L", name: "Bapak (Ayah)", ar: "الأب", max: 1, blockers: [] },
+    { id: "ibu", for: "All", gender: "P", name: "Ibu Kandung", ar: "الأم", max: 1, blockers: [] },
+    { id: "anak_lk", for: "All", gender: "L", name: "Anak laki-laki", ar: "الإبن", max: 20, blockers: [] },
+    { id: "anak_pr", for: "All", gender: "P", name: "Anak perempuan", ar: "البنت", max: 20, blockers: [] },
+    { id: "kakek", for: "All", gender: "L", name: "Kakek dr bapak", ar: "الجد", max: 1, blockers: ["ayah"] },
+    { id: "nenek_bapak", for: "All", gender: "P", name: "Nenek dr bapak", ar: "الجدة لأب", max: 1, blockers: ["ayah", "ibu"] },
+    { id: "nenek_ibu", for: "All", gender: "P", name: "Nenek dr ibu", ar: "الجدة لأم", max: 1, blockers: ["ibu"] },
+    { id: "cucu_lk", for: "All", gender: "L", name: "Cucu lk dr anak lk", ar: "ابن الإبن", max: 20, blockers: ["anak_lk"] },
+    { id: "cucu_pr", for: "All", gender: "P", name: "Cucu pr dr anak lk", ar: "بنت الإبن", max: 20, blockers: ["anak_lk"] },
+    { id: "sdra_lk_sekandung", for: "All", gender: "L", name: "Sdr lk seayah-seibu", ar: "الأخ الشقيق", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek"] },
+    { id: "sdri_pr_sekandung", for: "All", gender: "P", name: "Sdr pr seayah-seibu", ar: "الأخت الشقيقة", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek"] },
+    { id: "sdra_lk_seayah", for: "All", gender: "L", name: "Sdr lk seayah", ar: "الأخ لأب", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung"] },
+    { id: "sdri_pr_seayah", for: "All", gender: "P", name: "Sdr pr seayah", ar: "الأخت لأب", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung"] },
+    { id: "sdra_lk_seibu", for: "All", gender: "L", name: "Sdr lk seibu", ar: "الأخ لأم", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "anak_pr", "cucu_pr"] },
+    { id: "sdri_pr_seibu", for: "All", gender: "P", name: "Sdr pr seibu", ar: "الأخت لأم", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "anak_pr", "cucu_pr"] },
+    { id: "keponakan_lk_sekandung", for: "All", gender: "L", name: "Keponakan lk (sdr kndng)", ar: "ابن الأخ الشقيق", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung", "sdra_lk_seayah"] },
+    { id: "keponakan_lk_seayah", for: "All", gender: "L", name: "Keponakan lk (sdr seayah)", ar: "ابن الأخ لأب", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung", "sdra_lk_seayah", "keponakan_lk_sekandung"] },
+    { id: "paman_sekandung", for: "All", gender: "L", name: "Paman seayah-seibu", ar: "العم الشقيق", max: 5, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung", "sdra_lk_seayah", "keponakan_lk_sekandung", "keponakan_lk_seayah"] },
+    { id: "paman_seayah", for: "All", gender: "L", name: "Paman seayah", ar: "العم لأب", max: 5, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung", "sdra_lk_seayah", "keponakan_lk_sekandung", "keponakan_lk_seayah", "paman_sekandung"] },  
+    { id: "anak_paman_sekandung", for: "All", gender: "L", name: "Anak lk paman kndng", ar: "ابن العم الشقيق", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung", "sdra_lk_seayah", "keponakan_lk_sekandung", "keponakan_lk_seayah", "paman_sekandung", "paman_seayah"] },
+    { id: "anak_paman_seayah", for: "All", gender: "L", name: "Anak lk paman seayah", ar: "ابن العم لأب", max: 20, blockers: ["anak_lk", "cucu_lk", "ayah", "kakek", "sdra_lk_sekandung", "sdra_lk_seayah", "keponakan_lk_sekandung", "keponakan_lk_seayah", "paman_sekandung", "paman_seayah", "anak_paman_sekandung"] }
+];
+let mayitGender = "Laki-laki";
+const $ = id => document.getElementById(id);
+const formatRp = n => !n ? "-" : "Rp " + Math.round(n).toLocaleString('id-ID');
+document.querySelectorAll(".num-bind").forEach(input => {
+    input.addEventListener("input", () => {
+        let val = input.value.replace(/\D/g, "");
+        input.value = val ? new Intl.NumberFormat("id-ID").format(val) : "";
+    });
+});
+document.addEventListener("DOMContentLoaded", () => { renderList(); });
+function setGender(gender) {
+    mayitGender = gender;
+    document.querySelectorAll(".selector-item").forEach(el => el.classList.remove("active"));
+    document.querySelector(`.selector-item[data-gender="${gender}"]`).classList.add("active");
+    renderList(); // Render ulang checklist
+    calcWaris();  // Hitung ulang
+}
+function renderList() {
+    const container = $("listAhliWarisContainer");
+    container.innerHTML = "";
+    const validData = dataWaris.filter(d => d.for === "All" || d.for === mayitGender);
+    const males = validData.filter(d => d.gender === "L");
+    const females = validData.filter(d => d.gender === "P");
+    const buildGroup = (title, items) => {
+        let html = `<span class="section-title">${title}</span><div class="ahli-waris-list">`;
+        items.forEach(i => {
+            html += `<div class="ahli-waris-item">
+                <div class="item-left" onclick="chkClick(event, '${i.id}')">
+                    <input type="checkbox" id="chk_${i.id}" onclick="event.stopPropagation(); tglCnt('${i.id}')">
+                    <div class="name-container"><span class="name-id">${i.name}</span><span class="name-ar">${i.ar}</span></div>
+                </div>
+                <div class="counter-container" id="cnt_${i.id}">
+                    <button class="counter-btn" onclick="chgCnt('${i.id}', -1)">-</button>
+                    <input type="text" class="counter-value" id="qty_${i.id}" value="1" readonly>
+                    <button class="counter-btn" onclick="chgCnt('${i.id}', 1)">+</button>
+                </div>
+            </div>`;
+        });
+        html += `</div>`;
+        return html;
+    };   
+    container.innerHTML = buildGroup("Laki-laki", males) + buildGroup("Perempuan", females);
+}
+function chkClick(e, id) { 
+    const c = $(`chk_${id}`); 
+    if(c) { c.checked = !c.checked; tglCnt(id); calcWaris(); } 
+}
+function tglCnt(id) { 
+    const c = $(`chk_${id}`), cnt = $(`cnt_${id}`);
+    if (c && cnt) { 
+        cnt.style.display = c.checked ? "flex" : "none"; 
+        if (!c.checked) $(`qty_${id}`).value = 1; 
+        calcWaris();
+    }
+}
+function chgCnt(id, d) { 
+    const q = $(`qty_${id}`), max = dataWaris.find(x => x.id === id).max;
+    let v = parseInt(q.value) + d; 
+    q.value = v < 1 ? 1 : (v > max ? max : v); 
+    calcWaris();
+}
+function lcmList(arr) { const gcd = (a, b) => b === 0 ? a : gcd(b, a % b), lcm = (a, b) => (a * b) / gcd(a, b); return arr.reduce(lcm, arr[0]); }
+function calcWaris() {
+    const rawHarta = parseFloat($("hartaTotal").value.replace(/\./g, "")) || 0;
+    const rawTanggungan = parseFloat($("tanggungan").value.replace(/\./g, "")) || 0;
+    const sisaHarta = Math.max(0, rawHarta - rawTanggungan);
+    $("sisaHartaDisplay").innerText = formatRp(sisaHarta);
+    const sel = {};
+    dataWaris.forEach(i => { 
+        const c = $(`chk_${i.id}`); 
+        if(c && c.checked) sel[i.id] = parseInt($(`qty_${i.id}`).value) || 1; 
+    });
+    const adaAnak = !!sel.anak_lk || !!sel.anak_pr || !!sel.cucu_lk;
+    const jmlSdra = ["sdra_lk_sekandung","sdri_pr_sekandung","sdra_lk_seayah","sdri_pr_seayah","sdra_lk_seibu","sdri_pr_seibu"].reduce((sum, k) => sum + (sel[k] || 0), 0);
+    let res = [], denoms = [];
+    dataWaris.forEach(i => {
+        if (!sel[i.id]) return;
+        if (i.blockers.some(b => sel[b])) { 
+            res.push({ ...i, stat: "M", str: "Mahjub", s: 0 }); 
+            return; 
+        }
+        let d = 1, stat = "F", str = "";
+        if (i.id === "istri") d = adaAnak ? 8 : 4;
+        else if (i.id === "suami") d = adaAnak ? 4 : 2;
+        else if (i.id === "ayah") { if (adaAnak) d = 6; else stat = "A"; }
+        else if (i.id === "ibu") d = (adaAnak || jmlSdra >= 2) ? 6 : 3;
+        else if (i.id === "anak_pr" && !sel.anak_lk) { 
+            d = sel[i.id] === 1 ? 2 : 3; 
+            res.push({ ...i, stat: "F", num: sel[i.id] === 1 ? 1 : 2, den: d, str: `${sel[i.id] === 1 ? 1 : 2}/${d}` }); 
+            denoms.push(d); 
+            return; 
+        }
+        else if (i.id === "sdri_pr_sekandung" && !sel.anak_lk && !sel.sdra_lk_sekandung && !sel.anak_pr) { 
+            d = sel[i.id] === 1 ? 2 : 3; 
+            res.push({ ...i, stat: "F", num: sel[i.id] === 1 ? 1 : 2, den: d, str: `${sel[i.id] === 1 ? 1 : 2}/${d}` }); 
+            denoms.push(d); 
+            return; 
+        }
+        else if (i.id.includes("seibu")) d = sel[i.id] === 1 ? 6 : 3;
+        else stat = "A";
+        if(stat === "F") { 
+            res.push({ ...i, stat, num: 1, den: d, str: `1/${d}` }); 
+            denoms.push(d); 
+        } else {
+            res.push({ ...i, stat, str: "Ashobah", isA: true });
+        }
+    });
+    let am = denoms.length ? lcmList(denoms) : 1, fardhSiham = 0;
+    res.forEach(r => { 
+        if (r.stat === "F") { r.s = (r.num / r.den) * am; fardhSiham += r.s; } else r.s = 0; 
+    });
+    let sisaS = Math.max(0, am - fardhSiham);
+    let ash = res.filter(r => r.stat === "A" || (r.id === "anak_pr" && sel.anak_lk));
+    if (ash.length && sisaS > 0) {
+        if (ash.some(r => r.id === "anak_lk") && res.some(r => r.id === "anak_pr")) {
+            let kpl = (sel.anak_lk * 2) + sel.anak_pr;
+            res.forEach(r => { 
+                if (r.id === "anak_lk" || r.id === "anak_pr") { 
+                    r.stat = "A"; r.str = "Ashobah"; 
+                    r.s = sisaS * ((r.id === "anak_lk" ? sel.anak_lk * 2 : sel.anak_pr) / kpl); 
+                } 
+            });
+        } else {
+            let bag = sisaS / ash.length;
+            res.forEach(r => { if (r.stat === "A" && r.s === 0) r.s = bag; });
+        }
+    }
+    $("valAmAwal").innerText = am; 
+    $("valAmAkhir").innerText = am;
+    const tbody = $("resultBody");
+    if(!res.length) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#64748b;padding:20px;">Silakan pilih ahli waris terlebih dahulu di kolom kiri.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = res.map(r => {
+        let furudhBdg = r.stat === "M" ? '<span class="badge badge-mahjub">Mahjub</span>' : 
+                       (r.stat === "A" ? '<span class="badge badge-sisa">Ashobah</span>' : `<span style="color:#cbd5e1;font-weight:bold;">${r.str}</span>`);
+        let nominal = r.stat === "M" ? 0 : sisaHarta * (r.s / am);
+        return `<tr>
+            <td><strong>${sel[r.id]} ${r.name}</strong><span class="ar-sub">${r.ar}</span></td>
+            <td>${furudhBdg}</td>
+            <td><strong style="color:#e2e8f0;">${Math.round(r.s * 100) / 100}</strong></td>
+            <td><strong style="color:#1dd75b;">${formatRp(nominal)}</strong></td>
+        </tr>`;
+    }).join('');
+}
+function resetApp() {
+    document.querySelectorAll(".form-input").forEach(el => el.value = "");
+    $("sisaHartaDisplay").innerText = "Rp 0";
+    setGender('Laki-laki');
+}
+</script>
+</body>
+</html>
