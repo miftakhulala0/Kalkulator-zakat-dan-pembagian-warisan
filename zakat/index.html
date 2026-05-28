@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Zakat</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+    body{background:#07152b;color:white;min-height:100vh;padding:30px;}
+    .container{max-width:1200px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+    .left-panel,.result-panel{display:flex;flex-direction:column;gap:20px;}
+    .card{background:#13233d;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.25);}
+    .title{font-size:24px;font-weight:bold;margin-bottom:6px;}
+    .subtitle{font-size:14px;color:#a9b3c7;margin-bottom:20px;}
+    .zakat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .zakat-item{background:#0f1d34;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px 12px;min-height:90px;cursor:pointer;transition:0.25s;display:flex;flex-direction:column;justify-content:space-between;}
+    .zakat-item:hover{transform:translateY(-2px);border-color:#1dd75b;}
+    .zakat-item.active{border:1px solid #1dd75b;background:#132d23;}
+    .zakat-icon {font-size: 22px;display: flex;align-items: center;min-height: 24px;}
+    .zakat-name{font-size:14px;font-weight:600;line-height:1.3;}
+    .form-group{margin-bottom:24px;}
+    .form-label{display:block;margin-bottom:12px;font-size:15px;font-weight:bold;color:white;}
+    .input-wrapper{position:relative;}
+    .currency{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#98a4bb;font-size:16px;}
+    .form-input{width:100%;height:60px;background:#344258;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:0 18px 0 58px;color:white;font-size:18px;outline:none;transition:0.2s;}
+    .form-input.no-currency{padding:0 18px;} 
+    .form-input:focus{border-color:#1dd75b;}
+    .form-note{margin-top:8px;color:#aeb8c7;font-size:14px;line-height:1.5;}
+    .info-box{background:#4a4038;border-radius:14px;padding:18px;color:#ffc247;font-size:15px;line-height:1.8;margin-top:15px;}
+    .info-box strong { color: #ffc247; }
+    .info-box .gold-sub { color: #ffa834; font-size: 14px; }
+    .button-group{display:flex;gap:14px;margin-top:22px;}
+    button{border:none;border-radius:14px;cursor:pointer;transition:0.2s;}
+    .btn-primary{flex:1;height:60px;background:#0a7b33;color:white;font-size:18px;font-weight:bold;}
+    .btn-primary:hover{background:#119642;}
+    .btn-secondary{width:110px;height:60px;background:#39475d;color:white;font-size:17px;font-weight:bold;}
+    .btn-secondary:hover{background:#4a5b75;}
+    .result-placeholder{background:#13233d;border:2px dashed rgba(255,255,255,0.1);border-radius:24px;min-height:500px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
+    .result-content{max-width:400px;}
+    .result-icon{width:80px;height:80px;margin:auto auto 20px;border-radius:50%;background:#1d2d47;display:flex;align-items:center;justify-content:center;font-size:34px;}
+    .result-title{font-size:30px;font-weight:bold;margin-bottom:12px;}
+    .result-desc{color:#aab4c6;line-height:1.7;}
+    .result-card{background:linear-gradient(135deg,#0d2c2b,#08251f);border:1px solid #15803d;border-radius:22px;padding:30px;color:white;}
+    .result-header{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:bold;margin-bottom:24px;}
+    .result-check{width:34px;height:34px;border-radius:50%;border:2px solid #4ade80;color:#4ade80;display:flex;align-items:center;justify-content:center;}
+    .result-zakat-label{color:#d1d5db;margin-bottom:12px;}
+    .result-zakat-value{font-size:56px;font-weight:bold;color:#4ade80;margin-bottom:24px;}
+    .result-success{color:#4ade80;font-size:16px;line-height:1.6;}
+    .detail-card{background:#13233d;border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:26px;}
+    .detail-title{font-size:20px;font-weight:bold;margin-bottom:24px;}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:15px;}
+    .detail-box{background:#1e293b;border-radius:14px;padding:18px;}
+    .detail-box-title{color:#8892b0;font-size:14px;margin-bottom:8px;}
+    .detail-box-value{font-size:16px;font-weight:bold;line-height:1.4;}
+    .rumus-box{background:#142223;border:1px solid rgba(29,215,91,0.15);border-radius:14px;padding:18px;margin-bottom:20px;}
+    .rumus-title{color:#1dd75b;font-weight:bold;font-size:14px;margin-bottom:6px;}
+    .rumus-formula{color:#a9b3c7;font-size:16px;font-family:'Courier New', Courier, monospace;}
+    .detail-list{padding-left:10px;list-style:none;color:#aab4c6;line-height:2.2;font-size:15px;}
+    .detail-list li{position:relative;padding-left:20px;}
+    .detail-list li::before{content:"•";position:absolute;left:0;color:#4f5e75;font-size:18px;}
+    .detail-list strong{color:white;}
+    .text-danger-custom {color: #f87171 !important;}
+    .pengairan-grid, .logam-selector-grid, .ternak-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .pengairan-item, .logam-option, .ternak-option { background: #0f1d34; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 14px 10px; cursor: pointer; transition: 0.2s; text-align: center; }
+    .pengairan-item:hover, .logam-option:hover, .ternak-option:hover { border-color: #1dd75b; }
+    .pengairan-item.active, .logam-option.active, .ternak-option.active { border: 1px solid #1dd75b; background: #132d23; }
+    .pengairan-title, .ternak-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+    .pengairan-rate, .ternak-subtitle { font-size: 12px; color: #a9b3c7; }
+    .hidden{display:none !important;}
+    @media(max-width:950px){.container{grid-template-columns:1fr;}.result-placeholder{min-height:300px;}}
+    @media(max-width:700px){.detail-grid{grid-template-columns:1fr;}.result-zakat-value{font-size:40px;}.ternak-grid{grid-template-columns:1fr;}}
+    @media(max-width:550px){body{padding:15px;}.zakat-grid{grid-template-columns:repeat(2,1fr);}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <div class="card">
+        <div class="title">Kalkulator Zakat</div>
+        <div class="subtitle">Hitung zakat dengan mudah dan akurat.</div>
+        <div class="zakat-grid">
+          <div class="zakat-item active" data-type="mal"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYV8QTF9B0CZ5T97C609H99.svg" alt="Mal" style="width:24px;"></div><div class="zakat-name">Zakat Mal</div></div>
+          <div class="zakat-item" data-type="tani"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYV81DR5R7FNVPZT1MXRF7G.svg" alt="Pertanian" style="width:24px;"></div><div class="zakat-name">Zakat Pertanian</div></div>
+          <div class="zakat-item" data-type="dagang"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KF084TNXBGB4FY9HBPZXJCAW.svg" alt="Perdagangan" style="width:24px;"></div><div class="zakat-name">Zakat Perdagangan</div></div>
+          <div class="zakat-item" data-type="emas"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYV1R65G33A26QXTHD1244F.svg" alt="Emas" style="width:24px;"></div><div class="zakat-name">Zakat Emas / Perak</div></div>
+          <div class="zakat-item" data-type="tambak"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYV12WXPB787TZ54BB31M9M.svg" alt="Tambak" style="width:24px;"></div><div class="zakat-name">Zakat Tambak</div></div>
+          <div class="zakat-item" data-type="saham"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KF081MT63VNHHKFGQAXMP9VB.svg" alt="Saham" style="width:24px;"></div><div class="zakat-name">Zakat Saham</div></div>
+          <div class="zakat-item" data-type="ternak"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYTZAA0W87Z67PN3SGFBGJY.svg" alt="Peternakan" style="width:24px;"></div><div class="zakat-name">Zakat Peternakan</div></div>
+          <div class="zakat-item" data-type="properti"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYTXQH8JEQ8XNVAXC1J3SSM.svg" alt="Properti" style="width:24px;"></div><div class="zakat-name">Zakat Properti</div></div>
+          <div class="zakat-item" data-type="perusahaan"><div class="zakat-icon"><img src="https://dashboard.nucare.id/storage/donations/images/01KDYTYHYF1868XQFPBXJ6S7CS.svg" alt="Perusahaan" style="width:24px;"></div><div class="zakat-name">Zakat Perusahaan</div></div>
+          <div class="zakat-item" data-type="profesi"><div class="zakat-icon">💼</div><div class="zakat-name">Zakat Profesi</div></div>
+          <div class="zakat-item" data-type="tambang"><div class="zakat-icon">⛏️</div><div class="zakat-name">Zakat Pertambangan</div></div>
+          <div class="zakat-item" data-type="pendapatan"><div class="zakat-icon">💵</div><div class="zakat-name">Zakat Pendapatan</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div id="formMal">
+          <div class="form-group">
+            <label class="form-label">Total Harta</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="totalHarta" placeholder="Masukkan total harta" /></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Utang - Opsional</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="totalUtang" placeholder="Masukkan total utang" /></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasMal" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box"><div id="nisabTextMal"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="goldPriceTextMal" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formTani" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Hasil Panen (kg)</label>
+            <div class="input-wrapper"><input type="text" class="form-input no-currency num-bind" id="hasilPanen" placeholder="Masukkan hasil panen" /></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jenis Pengairan</label>
+            <div class="pengairan-grid">
+              <div class="pengairan-item active" data-rate="0.1"><div class="pengairan-title">Tadah Hujan</div><div class="pengairan-rate">Zakat 10%</div></div>
+              <div class="pengairan-item" data-rate="0.05"><div class="pengairan-title">Irigasi Berbiaya</div><div class="pengairan-rate">Zakat 5%</div></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga per Kg - Opsional</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="hargaTani" placeholder="Contoh: 7.500" /></div>
+          </div>
+        </div>
+        <div id="formDagang" class="hidden">
+          <div class="form-group"><label class="form-label">Modal Usaha</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="modalUsaha" placeholder="Masukkan modal usaha" /></div></div>
+          <div class="form-group"><label class="form-label">Keuntungan</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="keuntunganDagang" placeholder="Masukkan keuntungan" /></div></div>
+          <div class="form-group"><label class="form-label">Piutang - Opsional</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="piutangDagang" placeholder="Masukkan piutang" /></div></div>
+          <div class="form-group"><label class="form-label">Utang Usaha - Opsional</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="utangDagang" placeholder="Masukkan utang usaha" /></div></div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasDagang" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box"><div id="nisabTextDagang"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="goldPriceTextDagang" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formEmas" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Pilih Jenis Logam Mulia</label>
+            <div class="logam-selector-grid">
+              <div class="logam-option active" data-logam="emas">🪙 Emas</div>
+              <div class="logam-option" data-logam="perak">⚪ Perak</div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label" id="labelBeratLogam">Berat Emas (gram)</label><div class="input-wrapper"><input type="text" class="form-input no-currency num-bind" id="beratLogam" placeholder="Masukkan berat emas" /></div></div>
+          <div class="form-group"><label class="form-label" id="labelHargaLogam">Harga Emas per Gram (Rp)</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="hargaLogam" placeholder="2.780.000" /></div></div>
+          <div class="info-box"><div id="nisabTextLogam"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="priceTextLogam" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formTambak" class="hidden">
+          <div class="form-group"><label class="form-label">Keuntungan Bersih Tambak</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="keuntunganTambak" placeholder="Masukkan keuntungan bersih" /></div></div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasTambak" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box"><div id="nisabTextTambak"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="goldPriceTextTambak" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formSaham" class="hidden">
+          <div class="form-group"><label class="form-label">Nilai Saham Saat Ini</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="nilaiSaham" placeholder="Masukkan total nilai saham" /></div></div>
+          <div class="form-group"><label class="form-label">Dividen yang Diterima - Opsional</label><div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="dividenSaham" placeholder="Masukkan dividen" /></div></div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasSaham" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box"><div id="nisabTextSaham"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="goldPriceTextSaham" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formTernak" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Jenis Ternak</label>
+            <div class="ternak-grid">
+              <div class="ternak-option active" data-ternak="sapi"><div class="ternak-title">Sapi/Kerbau</div><div class="ternak-subtitle">Nisab: 30 Ekor</div></div>
+              <div class="ternak-option" data-ternak="kambing"><div class="ternak-title">Kambing/Domba</div><div class="ternak-subtitle">Nisab: 40 Ekor</div></div>
+              <div class="ternak-option" data-ternak="unta"><div class="ternak-title">Unta</div><div class="ternak-subtitle">Nisab: 5 Ekor</div></div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Jumlah Ternak (ekor)</label><div class="input-wrapper"><input type="text" class="form-input no-currency num-bind" id="jumlahTernak" placeholder="Masukkan jumlah ternak" /></div></div>
+        </div>
+        <div id="formProperti" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Pendapatan Sewa Tahunan</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="pendapatanProperti" placeholder="Masukkan pendapatan sewa tahunan" /></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Biaya Operasional - Opsional</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="operasionalProperti" placeholder="Masukkan biaya operasional" /></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasProperti" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box"><div id="nisabTextProperti"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="goldPriceTextProperti" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formPerusahaan" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Laba Bersih Tahunan</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="labaPerusahaan" placeholder="Masukkan laba bersih tahunan" /></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasPerusahaan" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box"><div id="nisabTextPerusahaan"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div><div id="goldPriceTextPerusahaan" class="gold-sub">Harga emas acuan: Rp 2.780.000/gram</div></div>
+        </div>
+        <div id="formProfesi" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Penghasilan Bulanan</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="penghasilanProfesi" placeholder="Masukkan penghasilan bulanan" /></div>
+            <div class="form-note">Gaji, honorarium, atau upah bulanan</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Pengeluaran Pokok Bulanan - Opsional</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="pengeluaranProfesi" placeholder="Masukkan pengeluaran pokok" /></div>
+            <div class="form-note">Kebutuhan dasar: makan, tempat tinggal, transportasi</div>
+          </div>
+          <div class="info-box">
+            <div id="nisabTextProfesi"><strong>Nisab:</strong> Rp 236.300.000/tahun</div>
+            <div class="gold-sub">Zakat profesi dapat dibayar bulanan setelah mencapai nisab tahunan</div>
+            <div id="goldPriceTextProfesi" class="gold-sub">Harga emas: Rp 2.780.000/gram</div>
+          </div>
+        </div>
+        <div id="formTambang" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Nilai Hasil Tambang</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="nilaiHasilTambang" placeholder="Masukkan nilai hasil tambang" /></div>
+            <div class="form-note">Hasil bersih setelah biaya operasional</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga Emas per Gram</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind gold-trigger" id="hargaEmasTambang" placeholder="2.780.000" /></div>
+          </div>
+          <div class="info-box">
+            <div id="nisabTextTambang"><strong>Nisab:</strong> Rp 236.300.000 (setara 85 gram emas)</div>
+            <div class="gold-sub"><strong>Kadar:</strong> 2,5% dari hasil bersih</div>
+            <div id="goldPriceTextTambang" class="gold-sub">Harga emas: Rp 2.780.000/gram</div>
+          </div>
+        </div>
+        <div id="formPendapatan" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Total Pendapatan Jasa</label>
+            <div class="input-wrapper"><span class="currency">Rp</span><input type="text" class="form-input num-bind" id="totalPendapatanJasa" placeholder="Masukkan total pendapatan jasa" /></div>
+            <div class="form-note">Pendapatan dari jasa profesional (dokter, pengacara, konsultan, dll)</div>
+          </div>
+          <div class="info-box">
+            <div style="font-weight: bold; color: #ffc247; font-size: 16px;">Rumus: Total Pendapatan × 2,5%</div>
+          </div>
+        </div>
+        <div class="button-group">
+          <button class="btn-primary">Hitung Zakat</button>
+          <button class="btn-secondary" id="resetButton">Reset</button>
+        </div>
+      </div>
+    </div>
+    <div class="result-panel" id="resultPanel"></div>
+  </div>
+<script>
+  let currentType = "mal", subLogam = "emas", taniRate = 0.1, selectedTernak = "sapi";
+  const DEFAULT_GOLD_PRICE = 2780000; 
+  const DEFAULT_SILVER_PRICE = 45000;
+  const $ = id => document.getElementById(id);
+  const formatRupiah = angka => new Intl.NumberFormat("id-ID").format(angka);
+  const getVal = id => {
+    const element = $(id);
+    if (!element) return 0;
+    const rawValue = element.value.replace(/\./g, "");
+    if (!rawValue) {
+      if (id === "hargaLogam") {
+        return (subLogam === "emas") ? DEFAULT_GOLD_PRICE : DEFAULT_SILVER_PRICE;
+      }
+      if (id === "hargaEmasMal" || id === "hargaEmasDagang" || id === "hargaEmasTambak" || id === "hargaEmasSaham" || id === "hargaEmasProperti" || id === "hargaEmasPerusahaan" || id === "hargaEmasTambang") {
+        return DEFAULT_GOLD_PRICE;
+      }
+    }
+    return Number(rawValue) || 0;
+  };
+  document.querySelectorAll(".zakat-item").forEach(item => {
+    item.addEventListener("click", () => {
+      document.querySelectorAll(".zakat-item").forEach(el => el.classList.remove("active"));
+      item.classList.add("active");
+      currentType = item.getAttribute("data-type");
+      document.querySelectorAll(".card > div[id^='form']").forEach(f => {
+        f.classList.toggle("hidden", f.id !== "form" + currentType.charAt(0).toUpperCase() + currentType.slice(1));
+      });
+      renderDefaultResult();
+    });
+  });
+  const bindOptions = (selector, callback) => {
+    document.querySelectorAll(selector).forEach(el => {
+      el.addEventListener("click", () => {
+        document.querySelectorAll(selector).forEach(item => item.classList.remove("active"));
+        el.classList.add("active");
+        callback(el);
+      });
+    });
+  };
+  bindOptions(".logam-option", el => {
+    subLogam = el.getAttribute("data-logam");
+    const isEmas = subLogam === "emas";
+    $("labelBeratLogam").innerText = `Berat ${isEmas ? 'Emas' : 'Perak'} (gram)`;
+    $("labelHargaLogam").innerText = `Harga ${isEmas ? 'Emas' : 'Perak'} per Gram (Rp)`;
+    $("hargaLogam").placeholder = isEmas ? formatRupiah(DEFAULT_GOLD_PRICE) : formatRupiah(DEFAULT_SILVER_PRICE);
+    $("hargaLogam").value = "";
+    updateNisabLogam();
+  });
+  bindOptions(".pengairan-item", el => taniRate = Number(el.getAttribute("data-rate")));
+  bindOptions(".ternak-option", el => selectedTernak = el.getAttribute("data-ternak"));
+  document.querySelectorAll(".num-bind").forEach(input => {
+    input.addEventListener("input", () => {
+      let val = input.value.replace(/\D/g, "");
+      input.value = val ? formatRupiah(val) : "";
+    });
+  });
+  document.querySelectorAll(".gold-trigger").forEach(input => {
+    input.addEventListener("input", () => {
+      const harga = getVal(input.id), key = input.id.replace("hargaEmas", "");
+      if ($(`goldPriceText${key}`)) $(`goldPriceText${key}`).innerHTML = `Harga emas: Rp ${formatRupiah(harga)}/gram`;
+      if ($(`nisabText${key}`)) $(`nisabText${key}`).innerHTML = `<strong>Nisab:</strong> Rp ${formatRupiah(harga * 85)} (setara 85 gram emas)`;
+    });
+  });
+  function updateNisabLogam() {
+    const harga = getVal("hargaLogam"), gram = (subLogam === "emas") ? 85 : 595;
+    const namaCapital = subLogam.charAt(0).toUpperCase() + subLogam.slice(1);
+    $("priceTextLogam").innerHTML = `Harga ${subLogam}: Rp ${formatRupiah(harga)}/gram`;
+    $("nisabTextLogam").innerHTML = `<strong>Nisab:</strong> Rp ${formatRupiah(harga * gram)} (setara ${gram} gram ${subLogam})`;
+  }
+  $("hargaLogam").addEventListener("input", updateNisabLogam);
+  function initTexts() {
+    const nisabTahunan = DEFAULT_GOLD_PRICE * 85;
+    $("nisabTextProfesi").innerHTML = `<strong>Nisab:</strong> Rp ${formatRupiah(nisabTahunan)}/tahun`;
+    $("goldPriceTextProfesi").innerHTML = `Harga emas: Rp ${formatRupiah(DEFAULT_GOLD_PRICE)}/gram`;
+    $("hargaLogam").placeholder = formatRupiah(DEFAULT_GOLD_PRICE);
+  }
+  initTexts();
+  function renderDefaultResult() {
+    $("resultPanel").innerHTML = `<div class="result-placeholder"><div class="result-content"><div class="result-icon">🧮</div><div class="result-title">Hasil Perhitungan</div><div class="result-desc">Isi form lalu tekan tombol hitung zakat.</div></div></div>`;
+  }
+  renderDefaultResult();
+  document.querySelector(".btn-primary").addEventListener("click", () => {
+    let isWajib = false, zakat = 0, detailHTML = "", teksGagal = "", teksSukses = "", unit = "Rp", extraValue = "";
+    if (currentType === "mal") {
+      const harta = getVal("totalHarta"), emas = getVal("hargaEmasMal"), utang = getVal("totalUtang"), bersih = harta - utang, nisab = emas * 85;
+      if (!harta) return;
+      isWajib = bersih >= nisab; zakat = bersih * 0.025;
+      teksGagal = "Harta Anda belum mencapai nisab."; teksSukses = "✓ Harta Anda telah mencapai nisab";
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: Rp ${formatRupiah(nisab - bersih)}</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `Rp ${formatRupiah(nisab)}`, "2,5%", "(Total Harta − Utang) × 2,5%",
+        `<li>Total harta: Rp ${formatRupiah(harta)}</li>
+         <li>Total utang: Rp ${formatRupiah(utang)}</li>
+         <li>Harta bersih: Rp ${formatRupiah(bersih)}</li>
+         <li>Nisab: Rp ${formatRupiah(nisab)}</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: Rp ${formatRupiah(bersih)} × 2,5% = Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    } 
+    else if (currentType === "tani") {
+      const hasil = getVal("hasilPanen"), harga = getVal("hargaTani"), nisab = 653;
+      if (!hasil) return;
+      isWajib = hasil >= nisab; zakat = hasil * taniRate; unit = "kg";
+      if (harga && isWajib) extraValue = `<br><span style="font-size:22px; color:#ffffff;">Atau senilai: Rp ${formatRupiah(zakat * harga)}</span>`;
+      teksGagal = "Hasil pertanian belum mencapai nisab (653 kg gabah)."; teksSukses = "✓ Hasil panen telah mencapai nisab";
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: ${formatRupiah(nisab - hasil)} kg</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        "653 Kg Gabah", `${taniRate * 100}%`, "Hasil Panen × Kadar Zakat",
+        `<li>Hasil panen: ${formatRupiah(hasil)} kg</li>
+         <li>Nisab: 653 kg</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: ${formatRupiah(hasil)} kg × ${taniRate * 100}% = ${formatRupiah(zakat)} kg</strong></li>` : ''}`
+      );
+    } 
+    else if (currentType === "dagang") {
+      const modal = getVal("modalUsaha"), untung = getVal("keuntunganDagang"), piutang = getVal("piutangDagang"), utang = getVal("utangDagang"), emas = getVal("hargaEmasDagang"), bersih = (modal + untung + piutang) - utang, nisab = emas * 85;
+      if (!modal) return;
+      isWajib = bersih >= nisab; zakat = bersih * 0.025;
+      teksGagal = "Kekayaan bisnis bersih belum mencapai batas nisab."; teksSukses = "✓ Bisnis Anda memenuhi kriteria wajib zakat";
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: Rp ${formatRupiah(nisab - bersih)}</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `Rp ${formatRupiah(nisab)}`, "2,5%", "(Modal + Keuntungan + Piutang − Utang) × 2,5%",
+        `<li>Modal usaha: Rp ${formatRupiah(modal)}</li>
+         <li>Keuntungan: Rp ${formatRupiah(untung)}</li>
+         <li>Piutang: Rp ${formatRupiah(piutang)}</li>
+         <li>Utang dagang: Rp ${formatRupiah(utang)}</li>
+         <li>Aset bersih bisnis: Rp ${formatRupiah(bersih)}</li>
+         <li>Nisab: Rp ${formatRupiah(nisab)}</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: Rp ${formatRupiah(bersih)} × 2,5% = Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    } 
+    else if (currentType === "emas") {
+      const berat = getVal("beratLogam"), harga = getVal("hargaLogam"), gram = (subLogam === "emas") ? 85 : 595, nisab = harga * gram;
+      if (!berat) return;
+      isWajib = berat >= gram; const zakatGram = berat * 0.025; zakat = zakatGram * harga;
+      teksGagal = `Total berat ${subLogam} belum mencapai batas nisab (${gram} gram).`; teksSukses = `✓ Simpanan logam mulia (${subLogam}) telah mencapai nisab`;
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: ${formatRupiah(gram - berat)} gram</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `${gram} Gram`, "2,5%", `Berat ${subLogam.toUpperCase()} × 2,5%`,
+        `<li>Total berat kepemilikan: ${formatRupiah(berat)} gram</li>
+         <li>Nisab: ${gram} gram</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li>Kadar zakat (gram): ${zakatGram.toFixed(2)} gram</li><li><strong>Zakat: Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    } 
+    else if (currentType === "tambak" || currentType === "properti" || currentType === "perusahaan") {
+      let labelZakat = "Tambak", formulaText = "Keuntungan Bersih × 2,5%", inputKotor = 0, inputOpsi = 0, token = "Tambak";
+      if(currentType === "properti") { labelZakat = "Properti"; formulaText = "(Pendapatan − Biaya Operasional) × 2,5%"; inputKotor = getVal("pendapatanProperti"); inputOpsi = getVal("operasionalProperti"); token = "Properti"; }
+      else if(currentType === "perusahaan") { labelZakat = "Perusahaan"; formulaText = "Laba Bersih Tahunan × 2,5%"; inputKotor = getVal("labaPerusahaan"); token = "Perusahaan"; }
+      else { inputKotor = getVal("keuntunganTambak"); }
+      const emas = getVal(`hargaEmas${token}`), bersih = inputKotor - inputOpsi, nisab = emas * 85;
+      if (!inputKotor) return;
+      isWajib = bersih >= nisab; zakat = bersih * 0.025;
+      teksGagal = `Pendapatan bersih ${labelZakat.toLowerCase()} belum mencapai batas nisab.`; 
+      teksSukses = `✓ Nilai bersih ${labelZakat.toLowerCase()} telah memenuhi kriteria haul dan wajib zakat`;
+      let itemsList = currentType === "properti" 
+        ? `<li>Pendapatan sewa kotor: Rp ${formatRupiah(inputKotor)}</li><li>Biaya operasional: Rp ${formatRupiah(inputOpsi)}</li>`
+        : `<li>Laba/Keuntungan bersih: Rp ${formatRupiah(inputKotor)}</li>`;
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: Rp ${formatRupiah(nisab - bersih)}</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `Rp ${formatRupiah(nisab)}`, "2,5%", formulaText,
+        `${itemsList}
+         <li>Nilai bersih kena zakat: Rp ${formatRupiah(bersih)}</li>
+         <li>Nisab: Rp ${formatRupiah(nisab)}</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    }
+    else if (currentType === "saham") {
+      const nilai = getVal("nilaiSaham"), dividen = getVal("dividenSaham"), emas = getVal("hargaEmasSaham"), total = nilai + dividen, nisab = emas * 85;
+      if (!nilai) return;
+      isWajib = total >= nisab; zakat = total * 0.025;
+      teksGagal = "Gabungan total pasar saham beserta dividen belum menyentuh batas nisab."; teksSukses = "✓ Investasi saham Anda telah memenuhi syarat wajib zakat";
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: Rp ${formatRupiah(nisab - total)}</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `Rp ${formatRupiah(nisab)}`, "2,5%", "(Nilai Pasar Saham + Dividen) × 2,5%",
+        `<li>Nilai pasar saham: Rp ${formatRupiah(nilai)}</li>
+         <li>Dividen diterima: Rp ${formatRupiah(dividen)}</li>
+         <li>Total aset gabungan: Rp ${formatRupiah(total)}</li>
+         <li>Nisab: Rp ${formatRupiah(nisab)}</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    }
+    else if (currentType === "profesi") {
+      const pendapatan = getVal("penghasilanProfesi"), pengeluaran = getVal("pengeluaranProfesi");
+      if (!pendapatan) return;
+      const bersihBulanan = pendapatan - pengeluaran;
+      const nisabTahunan = DEFAULT_GOLD_PRICE * 85;
+      const nisabBulanan = Math.floor(nisabTahunan / 12);
+      isWajib = bersihBulanan >= nisabBulanan;
+      zakat = bersihBulanan * 0.025;
+      teksGagal = "Penghasilan bersih bulanan Anda belum mencapai batasan nisab bulanan.";
+      teksSukses = "✓ Penghasilan bulanan Anda telah memenuhi kriteria wajib zakat";
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab Bulanan: Rp ${formatRupiah(nisabBulanan - bersihBulanan)}</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `Rp ${formatRupiah(nisabBulanan)} /bulan`, "2,5%", "(Penghasilan − Pengeluaran Pokok) × 2,5%",
+        `<li>Penghasilan bulanan: Rp ${formatRupiah(pendapatan)}</li>
+         <li>Pengeluaran pokok: Rp ${formatRupiah(pengeluaran)}</li>
+         <li>Penghasilan bersih bulanan: Rp ${formatRupiah(bersihBulanan)}</li>
+         <li>Nisab tahunan (85g emas): Rp ${formatRupiah(nisabTahunan)}</li>
+         <li>Nisab bulanan (Nisab Thn ÷ 12): Rp ${formatRupiah(nisabBulanan)}</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: Rp ${formatRupiah(bersihBulanan)} × 2,5% = Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    }
+    else if (currentType === "tambang") {
+      const nilaiTambang = getVal("nilaiHasilTambang"), emas = getVal("hargaEmasTambang"), nisab = emas * 85;
+      if (!nilaiTambang) return;
+      isWajib = nilaiTambang >= nisab;
+      zakat = nilaiTambang * 0.025;
+      teksGagal = "Nilai hasil tambang bersih belum mencapai batas nisab.";
+      teksSukses = "✓ Hasil tambang Anda telah memenuhi kriteria wajib zakat";
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: Rp ${formatRupiah(nisab - nilaiTambang)}</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `Rp ${formatRupiah(nisab)}`, "2,5%", "Hasil Bersih Tambang × 2,5%",
+        `<li>Nilai hasil tambang: Rp ${formatRupiah(nilaiTambang)}</li>
+         <li>Nisab (85g emas): Rp ${formatRupiah(nisab)}</li>
+         ${barisKekurangan}
+         ${isWajib ? `<li><strong>Zakat: Rp ${formatRupiah(nilaiTambang)} × 2,5% = Rp ${formatRupiah(zakat)}</strong></li>` : ''}`
+      );
+    }
+    else if (currentType === "pendapatan") {
+      const pendapatanJasa = getVal("totalPendapatanJasa");
+      if (!pendapatanJasa) return;
+      isWajib = true; 
+      zakat = pendapatanJasa * 0.025;
+      teksSukses = "✓ Perhitungan zakat pendapatan jasa berhasil dilakukan";
+      detailHTML = generateDetailCard(
+        `Tanpa Batasan`, "2,5%", "Total Pendapatan Jasa × 2,5%",
+        `<li>Total pendapatan jasa: Rp ${formatRupiah(pendapatanJasa)}</li>
+         <li><strong>Zakat: Rp ${formatRupiah(pendapatanJasa)} × 2,5% = Rp ${formatRupiah(zakat)}</strong></li>`
+      );
+    }
+    else if (currentType === "ternak") {
+      const jml = getVal("jumlahTernak"); 
+      if (!jml) return;
+      let limitNisab = 0, outText = "0 Ekor", labelTernak = "", txtFormula = "";
+      if (selectedTernak === "sapi") {
+        limitNisab = 30; labelTernak = "Sapi / Kerbau";
+        txtFormula = "+30 Ekor = 1 Tabi', +40 Ekor = 1 Musinnah";
+        isWajib = jml >= limitNisab;
+        if (isWajib) {
+          if (jml >= 30 && jml <= 39) { outText = "1 Ekor Sapi Tabi'"; }
+          else if (jml >= 40 && jml <= 59) { outText = "1 Ekor Sapi Musinnah"; }
+          else if (jml >= 60 && jml <= 69) { outText = "2 Ekor Sapi Tabi'"; }
+          else if (jml >= 70 && jml <= 79) { outText = "1 Ekor Sapi Musinnah & 1 Ekor Tabi'"; }
+          else if (jml >= 80 && jml <= 89) { outText = "2 Ekor Sapi Musinnah"; }
+          else {
+            let tabi = 0, musinnah = 0, sisa = jml;
+            while (sisa >= 40 && sisa % 30 !== 0) { musinnah++; sisa -= 40; }
+            tabi = Math.floor(sisa / 30);
+            outText = `${tabi > 0 ? tabi + ' Tabi\'' : ''}${tabi > 0 && musinnah > 0 ? ' & ' : ''}${musinnah > 0 ? musinnah + ' Musinnah' : ''}`;
+          }
+        }
+      } 
+      else if (selectedTernak === "kambing") {
+        limitNisab = 40; labelTernak = "Kambing / Domba";
+        txtFormula = "Skala Kelipatan Fikih Kambing";
+        isWajib = jml >= limitNisab;
+        if (isWajib) {
+          if (jml >= 40 && jml <= 120) { outText = "1 Ekor Kambing/Domba"; }
+          else if (jml >= 121 && jml <= 200) { outText = "2 Ekor Kambing/Domba"; }
+          else if (jml >= 201 && jml <= 300) { outText = "3 Ekor Kambing/Domba"; }
+          else { outText = `${Math.floor(jml / 100)} Ekor Kambing/Domba`; }
+        }
+      } 
+      else if (selectedTernak === "unta") {
+        limitNisab = 5; labelTernak = "Unta";
+        txtFormula = "Skala Kelipatan Fikih Unta";
+        isWajib = jml >= limitNisab;
+        if (isWajib) {
+          if (jml >= 5 && jml <= 9) { outText = "1 Ekor Kambing/Domba"; }
+          else if (jml >= 10 && jml <= 14) { outText = "2 Ekor Kambing/Domba"; }
+          else if (jml >= 15 && jml <= 19) { outText = "3 Ekor Kambing/Domba"; }
+          else if (jml >= 20 && jml <= 24) { outText = "4 Ekor Kambing/Domba"; }
+          else if (jml >= 25 && jml <= 35) { outText = "1 Ekor Unta Bintu Makhad"; }
+          else if (jml >= 36 && jml <= 45) { outText = "1 Ekor Unta Bintu Labun"; }
+          else if (jml >= 46 && jml <= 60) { outText = "1 Ekor Unta Hiqah"; }
+          else if (jml >= 61 && jml <= 75) { outText = "1 Ekor Unta Jadz'ah"; }
+          else if (jml >= 76 && jml <= 90) { outText = "2 Ekor Unta Bintu Labun"; }
+          else if (jml >= 91 && jml <= 120) { outText = "2 Ekor Unta Hiqah"; }
+          else {
+            let bintuLabun = 0, hiqah = 0, sisa = jml;
+            while (sisa >= 50 && sisa % 40 !== 0) { hiqah++; sisa -= 50; }
+            bintuLabun = Math.floor(sisa / 40);
+            outText = `${bintuLabun > 0 ? bintuLabun + ' Bintu Labun' : ''}${bintuLabun > 0 && hiqah > 0 ? ' & ' : ''}${hiqah > 0 ? hiqah + ' Hiqah' : ''}`;
+          }
+        }
+      }
+      teksGagal = `Jumlah hewan ternak ${labelTernak.toLowerCase()} belum mencapai batas nisab minimum (${limitNisab} ekor).`;
+      teksSukses = `✓ Kepemilikan peternakan ${labelTernak.toLowerCase()} telah mencapai nisab`;
+      unit = isWajib ? outText : "Ekor"; 
+      const barisKekurangan = !isWajib ? `<li class="text-danger-custom"><strong>Kekurangan Nisab: ${formatRupiah(limitNisab - jml)} ekor</strong></li>` : '';
+      detailHTML = generateDetailCard(
+        `${limitNisab} Ekor`, "Ketentuan Fikih", txtFormula,
+        `<li>Kategori ternak: ${labelTernak}</li>
+         <li>Total hewan dimiliki: ${formatRupiah(jml)} ekor</li>
+         <li>Minimal nisab wajib: ${limitNisab} ekor</li>
+         ${barisKekurangan}
+         <li><strong>Hasil Pengeluaran Zakat: ${isWajib ? outText : '0 Ekor'}</strong></li>`
+      );
+    }
+    renderHasilLayout(isWajib, zakat, detailHTML, teksGagal, teksSukses, unit, extraValue);
+  });
+  function generateDetailCard(nisab, rate, formula, listItems) {
+    return `
+      <div class="detail-card">
+        <div class="detail-title">Detail Perhitungan</div>
+        <div class="detail-grid">
+          <div class="detail-box">
+            <div class="detail-box-title">Nisab</div>
+            <div class="detail-box-value">${nisab}</div>
+          </div>
+          <div class="detail-box">
+            <div class="detail-box-title">Kadar Zakat</div>
+            <div class="detail-box-value">${rate}</div>
+          </div>
+        </div>
+        <div class="rumus-box">
+          <div class="rumus-title">Metode Penilaian</div>
+          <div class="rumus-formula">${formula}</div>
+        </div>
+        <ul class="detail-list">
+          ${listItems}
+        </ul>
+      </div>`;
+  }
+  function renderHasilLayout(isWajib, nilaiZakat, detailHTML, teksGagal, teksSukses, unit="Rp", extraValue="") {
+    const textColor = isWajib ? "#4ade80" : "#facc15";
+    let textZakatDisplay = "";
+    if (isWajib) {
+      if (unit === "Rp") textZakatDisplay = 'Rp ' + formatRupiah(nilaiZakat);
+      else if (unit === "kg") textZakatDisplay = formatRupiah(nilaiZakat) + ' kg';
+      else textZakatDisplay = unit; 
+    }
+    $("resultPanel").innerHTML = `
+      <div class="result-card" style="background: ${isWajib ? 'linear-gradient(135deg, #0d2c2b, #08251f)' : '#3b2a1f'}; border-color: ${isWajib ? '#15803d' : '#a16207'};">
+        <div class="result-header" style="color: ${textColor};"><div class="result-check" style="border-color: ${textColor}; color: ${textColor};">${isWajib ? '✓' : '⚠'}</div><div>Hasil Perhitungan</div></div>
+        ${isWajib ? `
+          <div class="result-zakat-label">Zakat yang harus dikeluarkan:</div>
+          <div class="result-zakat-value" style="${!unit.startsWith('Rp') && unit !== 'kg' ? 'font-size:20px; line-height:1.4;' : ''}">${textZakatDisplay} ${extraValue}</div>
+          <div class="result-success">${teksSukses}</div>
+        ` : `<div class="result-success" style="color: #facc15; font-size:18px; line-height:1.7;">${teksGagal}</div>`}
+      </div>${detailHTML}`;
+  }
+  $("resetButton").addEventListener("click", () => {
+    document.querySelectorAll(".form-input").forEach(el => { if(el) el.value = ""; });
+    subLogam = "emas"; taniRate = 0.1; selectedTernak = "sapi";
+    document.querySelectorAll(".pengairan-item, .logam-option, .ternak-option").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".pengairan-grid .pengairan-item[data-rate='0.1'], .logam-selector-grid .logam-option[data-logam='emas'], .ternak-grid .ternak-option[data-ternak='sapi']").forEach(el => el?.classList.add("active"));
+    $("labelBeratLogam").innerText = "Berat Emas (gram)";
+    $("labelHargaLogam").innerText = "Harga Emas per Gram (Rp)";
+    updateNisabLogam();
+    initTexts();
+    ["Mal", "Dagang", "Tambak", "Saham", "Properti", "Perusahaan", "Tambang"].forEach(k => {
+      if ($(`nisabText${k}`)) $(`nisabText${k}`).innerHTML = `<strong>Nisab:</strong> Rp ${formatRupiah(DEFAULT_GOLD_PRICE * 85)} (setara 85 gram emas)`;
+      if ($(`goldPriceText${k}`)) $(`goldPriceText${k}`).innerHTML = `Harga emas acuan: Rp ${formatRupiah(DEFAULT_GOLD_PRICE)}/gram`;
+    });
+    renderDefaultResult();
+  });
+</script>
+</body>
+</html>
