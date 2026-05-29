@@ -55,14 +55,13 @@
     .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; }
     .badge-sisa { background-color: #132d23; color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
     .badge-mahjub { background-color: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2); }
-    .back-btn { position: fixed; top: 20px; left: 20px; text-decoration: none; color: #1F2937; border: 1px solid #D1D5DB; padding: 10px 18px; border-radius: 999px; transition: 0.3s ease; font-size: 0.95rem; font-weight: 500; background-color: white; z-index: 999; }
-    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15); background-color: #2563EB; color: white; border-color: #2563EB; }
+    .back-btn { display: inline-block; text-decoration: none; color: #111827; border: 1px solid #D1D5DB; padding: 12px 24px; border-radius: 999px; transition: 0.3s ease; font-size: 0.95rem; font-weight: 500; background: white; }
+    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); background-color: #2563EB; color: white; border-color: #2563EB; }
     @media(max-width:950px){ .container{grid-template-columns:1fr;} }
     @media(max-width:500px){ body{padding:15px;} .summary-cards { flex-direction: column; } }
   </style>
 </head>
 <body>
-  <a href="../" class="back-btn">← Kembali</a>
   <div class="container">
     <div class="left-panel">
       <div class="card">
@@ -134,6 +133,9 @@
           </tbody>
         </table>
       </div>
+        <div class="card back-card">
+          <a href="../" class="back-btn">← Kembali ke Halaman Utama</a>
+        </div>
     </div>
   </div>
 <script>
