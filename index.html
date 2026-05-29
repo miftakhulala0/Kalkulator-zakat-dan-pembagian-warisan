@@ -2,234 +2,65 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-  <title>
-    Kalkulator Zakat dan Pembagian Warisan
-  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Zakat dan Pembagian Warisan</title>
   <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial,sans-serif;
-    }
-    body{
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      padding:60px 20px;
-      background:
-      linear-gradient(
-        135deg,
-        #f4f7fb,
-        #edf2f7
-      );
-      color:#1f2937;
-    }
-    .container{
-      width:100%;
-      max-width:980px;
-    }
-    .title{
-      text-align:center;
-      margin-bottom:40px;
-    }
-    .title h1{
-      font-size:38px;
-      font-weight:700;
-      margin-bottom:14px;
-      color:#111827;
-      line-height:1.4;
-    }
-    .title p{
-      color:#6b7280;
-      font-size:16px;
-      line-height:1.7;
-      max-width:620px;
-      margin:auto;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:
-      repeat(
-        auto-fit,
-        minmax(280px,1fr)
-      );
-      gap:24px;
-    }
-    .card{
-      background:white;
-      border-radius:22px;
-      padding:32px;
-      text-decoration:none;
-      color:inherit;
-      border:1px solid #e5e7eb;
-      transition:0.25s ease;
-      position:relative;
-      overflow:hidden;
-      box-shadow:
-      0 10px 30px rgba(0,0,0,0.04);
-    }
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-      linear-gradient(
-        135deg,
-        rgba(255,255,255,0),
-        rgba(255,255,255,0.5)
-      );
-      opacity:0;
-      transition:0.25s;
-    }
-    .card:hover{
-      transform:
-      translateY(-5px);
-      border-color:#d1d5db;
-      box-shadow:
-      0 18px 40px rgba(0,0,0,0.08);
-    }
-    .card:hover::before{
-      opacity:1;
-    }
-    .icon{
-      width:72px;
-      height:72px;
-      border-radius:18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:34px;
-      margin-bottom:24px;
-    }
-    .icon-zakat{
-      background:
-      linear-gradient(
-        135deg,
-        #dcfce7,
-        #bbf7d0
-      );
-    }
-    .icon-warisan{
-      background:
-      linear-gradient(
-        135deg,
-        #ede9fe,
-        #ddd6fe
-      );
-    }
-    .card h2{
-      font-size:24px;
-      margin-bottom:14px;
-      color:#111827;
-    }
-    .card p{
-      color:#6b7280;
-      line-height:1.8;
-      font-size:15px;
-    }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      margin-top:28px;
-      padding:
-      10px 14px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:600;
-      background:#f3f4f6;
-      color:#374151;
-    }
-    footer{
-      margin-top:70px;
-      text-align:center;
-      font-size:13px;
-      color:#6b7280;
-      line-height:2;
-    }
-    .link-polos{
-      text-decoration:none;
-      color:inherit;
-      transition:0.2s;
-      font-weight:bold;
-    }
-    .link-polos:hover{
-      color:#111827;
-    }
-    @media(max-width:700px){
-      .title h1{
-        font-size:30px;
-      }
-      .title p{
-        font-size:15px;
-      }
-      .card{
-        padding:22px;
-      }
-    }
+    *{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
+    body{min-height:100vh; display:flex; justify-content:center; align-items:flex-start; padding:60px 20px; background: linear-gradient(135deg, #f4f7fb, #edf2f7); color:#1f2937;}
+    .container{width:100%; max-width:980px;}
+    .title{text-align:center; margin-bottom:40px;}
+    .title h1{font-size:38px; font-weight:700; margin-bottom:14px; color:#111827; line-height:1.4;}
+    .title p{color:#6b7280; font-size:16px; line-height:1.7; max-width:620px; margin:auto;}
+    .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:24px;}
+    .card{background:white; border-radius:22px; padding:32px; text-decoration:none; color:inherit; border:1px solid #e5e7eb; transition:0.25s ease; position:relative; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.04);}
+    .card::before{content:""; position:absolute; inset:0; background: linear-gradient(135deg, rgba(255,255,255,0), rgba(255,255,255,0.5)); opacity:0; transition:0.25s;}
+    .card:hover{transform: translateY(-5px); border-color:#d1d5db; box-shadow: 0 18px 40px rgba(0,0,0,0.08);}
+    .card:hover::before{opacity:1;}
+    .icon{width:72px; height:72px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:34px; margin-bottom:24px;}
+    .icon-zakat{background: linear-gradient(135deg, #dcfce7, #bbf7d0);}
+    .icon-warisan{background: linear-gradient(135deg, #ede9fe, #ddd6fe);}
+    .card h2{font-size:24px; margin-bottom:14px; color:#111827;}
+    .card p{color:#6b7280; line-height:1.8; font-size:15px;}
+    .badge{display:inline-flex; align-items:center; gap:6px; margin-top:28px; padding: 10px 14px; border-radius:999px; font-size:13px; font-weight:600; background:#f3f4f6; color:#374151;}
+    footer{margin-top:70px; text-align:center; font-size:13px; color:#6b7280; line-height:2;}
+    .link-polos{text-decoration:none; color:inherit; transition:0.2s; font-weight:bold;}
+    .link-polos:hover{color:#111827;}
+    @media(max-width:700px){ .title h1{font-size:30px;} .title p{font-size:15px;} .card{padding:22px;}}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title">
-      <h1>
-        Kalkulator Zakat dan Pembagian Warisan
+      <h1>Kalkulator Zakat dan Pembagian Warisan
       </h1>
       <p>
-        Kumpulan alat bantu untuk menghitung zakat
-        dan simulasi pembagian warisan berdasarkan
-        hukum Islam secara cepat, sederhana,
-        dan langsung dari browser.
+        Kumpulan alat bantu untuk menghitung zakat dan simulasi pembagian warisan berdasarkan hukum Islam secara cepat, sederhana, dan langsung dari browser.
       </p>
     </div>
     <div class="grid">
-      <a
-        class="card"
-        href="./zakat/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div
-          class="icon icon-zakat"
-        >
+      <a class="card" href="./zakat/">
+        <div class="icon icon-zakat">
           💰
         </div>
         <h2>
           Kalkulator Zakat
         </h2>
         <p>
-          Hitung zakat mal, emas, perdagangan,
-          dan jenis zakat lainnya berdasarkan
-          nisab dan total harta bersih.
+          Hitung zakat mal, emas, perdagangan, dan jenis zakat lainnya berdasarkan nisab dan total harta bersih.
         </p>
         <div class="badge">
           ✓ Berbagai Jenis Zakat
         </div>
       </a>
-      <a
-        class="card"
-        href="./warisan/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div
-          class="icon icon-warisan"
-        >
+      <a class="card" href="./warisan/">
+        <div class="icon icon-warisan">
           ⚖️
         </div>
         <h2>
           Pembagian Warisan
         </h2>
         <p>
-          Simulasikan pembagian harta warisan
-          berdasarkan hukum faraid lengkap
-          dengan detail ahli waris dan bagian masing-masing.
+          Simulasikan pembagian harta warisan berdasarkan hukum faraid lengkap dengan detail ahli waris dan bagian masing-masing.
         </p>
         <div class="badge">
           ✓ Simulasi Faraid
@@ -242,12 +73,7 @@
       </div>
       <div>
         made by
-        <a
-          href="https://miftakhulala0.github.io/MyProfile/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="link-polos"
-        >
+        <a href="https://miftakhulala0.github.io/MyProfile/" target="_blank" rel="noopener noreferrer" class="link-polos">
           Muhammad Rizqi Miftakhul A'la
         </a>
       </div>
