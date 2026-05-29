@@ -67,6 +67,9 @@
     .pengairan-title, .ternak-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
     .pengairan-rate, .ternak-subtitle { font-size: 12px; color: #a9b3c7; }
     .hidden{display:none !important;}
+    .back-card { display: flex; justify-content: center; align-items: center; width: 100%; border-radius: 22px; margin-top: 10px; }
+    .back-btn { display: inline-block; text-decoration: none; color: #111827; border: 1px solid #D1D5DB; padding: 12px 24px; border-radius: 999px; transition: 0.3s ease; font-size: 0.95rem; font-weight: 500; background: white; }
+    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); background-color: #2563EB; color: white; border-color: #2563EB; }
     @media(max-width:950px){.container{grid-template-columns:1fr;}.result-placeholder{min-height:300px;}}
     @media(max-width:700px){.detail-grid{grid-template-columns:1fr;}.result-zakat-value{font-size:40px;}.ternak-grid{grid-template-columns:1fr;}}
     @media(max-width:550px){body{padding:15px;}.zakat-grid{grid-template-columns:repeat(2,1fr);}}
@@ -333,7 +336,7 @@
   }
   initTexts();
   function renderDefaultResult() {
-    $("resultPanel").innerHTML = `<div class="result-placeholder"><div class="result-content"><div class="result-icon">🧮</div><div class="result-title">Hasil Perhitungan</div><div class="result-desc">Isi form lalu tekan tombol hitung zakat.</div></div></div>`;
+    $("resultPanel").innerHTML = `<div class="result-placeholder"><div class="result-content"><div class="result-icon">🧮</div><div class="result-title">Hasil Perhitungan</div><div class="result-desc">Isi form lalu tekan tombol hitung zakat.</div></div></div><div class="card back-card"><a href="../" class="back-btn">← Kembali ke Halaman Utama</a></div>`;
   }
   renderDefaultResult();
   document.querySelector(".btn-primary").addEventListener("click", () => {
@@ -600,7 +603,10 @@
           <div class="result-zakat-value" style="${!unit.startsWith('Rp') && unit !== 'kg' ? 'font-size:20px; line-height:1.4;' : ''}">${textZakatDisplay} ${extraValue}</div>
           <div class="result-success">${teksSukses}</div>
         ` : `<div class="result-success" style="color: #facc15; font-size:18px; line-height:1.7;">${teksGagal}</div>`}
-      </div>${detailHTML}`;
+      </div>${detailHTML}
+      <div class="card back-card">
+        <a href="../" class="back-btn">← Kembali ke Halaman Utama</a>
+      </div>`;
   }
   $("resetButton").addEventListener("click", () => {
     document.querySelectorAll(".form-input").forEach(el => { if(el) el.value = ""; });
